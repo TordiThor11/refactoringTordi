@@ -10,41 +10,22 @@ public class Cliente {
     public Cliente(String nombre) {
         this.name = nombre;
     }
-
-    public Object[] calcularDeudaYPuntosObtenidos() {
-        Object[] resultado = new Object[2];
-        double total = 0;
+    public float calcularPuntosObtenidos(){
         int puntosAlquilerFrecuente = 0;
-        for (Alquiler alquiler : alquileres) {
-            double monto = 0;
-// determine amounts for each line
-            switch (alquiler.copia().libro().codigoPrecio()) {
-                case Libro.REGULARES:
-                    monto += 2;
-                    if (alquiler.diasAlquilados() > 2)
-                        monto += (alquiler.diasAlquilados() - 2) * 1.5;
-                    break;
-                case Libro.NUEVO_LANZAMIENTO:
-                    monto += alquiler.diasAlquilados() * 3;
-                    break;
-                case Libro.INFANTILES:
-                    monto += 1.5;
-                    if (alquiler.diasAlquilados() > 3)
-                        monto += (alquiler.diasAlquilados() - 3) * 1.5;
-                    break;
-            }
-            total += monto;
+        for (Alquiler alquiler : alquileres){
             // sumo puntos por alquiler
             puntosAlquilerFrecuente++;
-            // bonus por dos días de alquiler de un nuevo lanzamiento
-            if ((alquiler.copia().libro().codigoPrecio() == Libro.NUEVO_LANZAMIENTO)
-                    && alquiler.diasAlquilados() > 1) {
-                puntosAlquilerFrecuente++;
-            }
+            // bonus por días de alquiler de un nuevo lanzamiento
+            puntosAlquilerFrecuente += alquiler.copia().libro().calcularPuntosBonus(alquiler.diasAlquilados());
         }
-        resultado[0] = total;
-        resultado[1] = puntosAlquilerFrecuente;
-        return resultado;
+        return puntosAlquilerFrecuente;
+    }
+    public double calcularDeudaTotal() {
+        double monto = 0;
+        for (Alquiler alquiler : alquileres) {
+            monto += alquiler.calcularDeudaDeUnAlquiler();
+        }
+        return monto;
     }
 
     public void alquilar(Alquiler rental) {
